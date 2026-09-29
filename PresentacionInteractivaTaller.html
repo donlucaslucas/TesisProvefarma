@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Taller FENGUSS: De Excel y BUSCARV a Python con IA Generativa</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    code, pre, .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .slide-hidden {
+      display: none;
+      opacity: 0;
+      transform: scale(0.99);
+    }
+    .slide-active {
+      display: flex;
+      opacity: 1;
+      transform: scale(1);
+      animation: fadeInSlide 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes fadeInSlide {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes dashMove {
+      to {
+        stroke-dashoffset: -24;
+      }
+    }
+    .animated-wire {
+      stroke-dasharray: 6 6;
+      animation: dashMove 1.4s linear infinite;
+    }
+    .bg-uss-navy { background-color: #0b2341; }
+    .text-uss-navy { color: #0b2341; }
+    .border-uss-navy { border-color: #0b2341; }
+    .bg-uss-gold { background-color: #c5a059; }
+    .text-uss-gold { color: #b08d46; }
+    .border-uss-gold { border-color: #c5a059; }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between overflow-x-hidden selection:bg-amber-100 selection:text-[#0b2341]">
+
+  <!-- Header Superior Institucional -->
+  <header class="h-20 border-b border-slate-200 bg-white/95 backdrop-blur sticky top-0 z-50 px-4 sm:px-10 flex items-center justify-between shadow-sm">
+    <div class="flex items-center gap-4">
+      <div class="flex items-center">
+        <img 
+          src="https://raw.githubusercontent.com/donlucaslucas/TesisProvefarma/main/Logo_Universidad_san_sebastian.png" 
+          alt="Universidad San Sebastián" 
+          class="h-12 w-auto object-contain"
+          loading="eager"
+        />
+      </div>
+
+      <div class="h-9 w-[1px] bg-slate-200 hidden md:block"></div>
+      <div class="hidden md:block">
+        <span class="text-[11px] uppercase tracking-wider font-extrabold text-[#c5a059] block leading-none">Facultad de Economía, Negocios y Gobierno · FENGUSS</span>
+        <span class="text-sm font-bold text-[#0b2341] tracking-tight">Taller Práctico: De Excel a Python + IA Generativa</span>
+      </div>
+    </div>
+
+    <!-- Indicador de Avance y Controles -->
+    <div class="flex items-center gap-3 sm:gap-4">
+      <div class="text-xs font-mono font-semibold text-slate-500">
+        <span class="hidden sm:inline">Diapositiva</span> <span id="currentSlideNum" class="text-[#0b2341] font-bold text-sm">1</span> / <span id="totalSlidesNum">13</span>
+      </div>
+      <div class="w-20 sm:w-40 h-2.5 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200">
+        <div id="progressBar" class="h-full bg-gradient-to-r from-[#0b2341] to-[#c5a059] rounded-full transition-all duration-300" style="width: 7.69%;"></div>
+      </div>
+      <button onclick="downloadPresentation()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0b2341] hover:bg-[#163a66] text-white text-xs font-bold rounded-xl shadow-sm transition" title="Descargar archivo HTML">
+        <svg class="w-4 h-4 text-[#c5a059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        <span class="hidden sm:inline">Descargar</span>
+      </button>
+      <button onclick="toggleFullscreen()" class="p-2 text-slate-500 hover:text-[#0b2341] rounded-xl hover:bg-slate-100 transition" title="Pantalla Completa">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 flex items-center justify-center p-4 sm:p-8 max-w-6xl mx-auto w-full">
+
+    <!-- SLIDE 1: Portada con Relator y Logo Oficial -->
+    <section class="slide slide-active flex-col justify-center items-center text-center max-w-4xl py-6" data-slide="1">
+      <div class="mb-4">
+        <div class="flex flex-col items-center justify-center mb-4">
+          <img 
+            src="https://raw.githubusercontent.com/donlucaslucas/TesisProvefarma/main/Logo_Universidad_san_sebastian.png" 
+            alt="Universidad San Sebastián" 
+            class="h-24 w-auto object-contain mx-auto"
+            loading="eager"
+          />
+        </div>
+
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-[#b08d46] text-xs font-bold uppercase tracking-wider shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-[#c5a059] animate-pulse"></span>
+          Facultad de Economía, Negocios y Gobierno · FENGUSS
+        </div>
+      </div>
+
+      <h1 class="text-3xl sm:text-5xl font-extrabold text-[#0b2341] tracking-tight leading-tight mb-4">
+        De Excel y BUSCARV a <br>
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#0b2341] via-[#0284c7] to-[#c5a059]">
+          Python con IA Generativa
+        </span>
+      </h1>
+
+      <p class="text-base sm:text-lg text-slate-600 max-w-2xl font-normal leading-relaxed mb-6">
+        Aprende a transformar horas de cruces manuales en segundos de cómputo inteligente: dirige a <strong>Gemini</strong>, orquesta en <strong>VS Code</strong> y procesa más de <strong>1 millón de datos</strong> con precisión comercial.
+      </p>
+
+      <!-- Presentación Relator -->
+      <div class="mb-8 p-3.5 px-6 rounded-2xl bg-white border border-slate-200 shadow-sm inline-flex items-center gap-4 text-left">
+        <div class="w-12 h-12 rounded-xl bg-[#0b2341] text-[#c5a059] flex items-center justify-center font-bold text-xl shadow-md">
+          🎓
+        </div>
+        <div>
+          <span class="text-[11px] uppercase tracking-wider text-slate-400 font-bold block">Relator del Taller</span>
+          <span class="text-sm font-extrabold text-[#0b2341]">Magíster en Data Science</span>
+          <span class="text-xs text-slate-600 block">Universidad San Sebastián</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full max-w-3xl text-left">
+        <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
+          <div class="text-[#0b2341] text-2xl font-extrabold mb-1">0%</div>
+          <div class="text-xs text-slate-500 font-medium">Sintaxis que memorizar</div>
+        </div>
+        <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
+          <div class="text-[#005a9c] text-2xl font-extrabold mb-1">1.04M+</div>
+          <div class="text-xs text-slate-500 font-medium">Transacciones procesadas</div>
+        </div>
+        <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
+          <div class="text-[#c5a059] text-2xl font-extrabold mb-1">TSV</div>
+          <div class="text-xs text-slate-500 font-medium">Puente seguro sin subir CSVs</div>
+        </div>
+        <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
+          <div class="text-emerald-600 text-2xl font-extrabold mb-1">2 Vías</div>
+          <div class="text-xs text-slate-500 font-medium">Excel Ejecutivo + Dashboard HTML</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: El Diagnóstico - Excel vs Python -->
+    <section class="slide slide-hidden flex-col max-w-5xl w-full" data-slide="2">
+      <div class="mb-6">
+        <span class="text-[#c5a059] text-xs font-bold uppercase tracking-wider">El Diagnóstico del Analista</span>
+        <h2 class="text-3xl font-extrabold text-[#0b2341] mt-1">¿Por qué Excel ya no da abasto en el negocio actual?</h2>
+        <p class="text-sm text-slate-600 mt-1">Tu tiempo profesional vale más que esperar a que una planilla termine de calcular fórmulas frágiles.</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Tarjeta Excel -->
+        <div class="p-6 rounded-2xl bg-white border border-red-200 shadow-sm relative overflow-hidden">
+          <div class="flex items-center justify-between mb-4">
+            <span class="px-3 py-1 rounded-full bg-red-50 text-red-700 text-xs font-bold border border-red-200">El Modo Tradicional (Excel)</span>
+            <span class="text-2xl">⏳</span>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900 mb-3">La Barrera de la Planilla</h3>
+          <ul class="space-y-3.5 text-sm text-slate-600">
+            <li class="flex items-start gap-2.5">
+              <span class="text-red-500 font-bold text-base leading-none">✕</span>
+              <span><strong>Límite técnico de filas:</strong> Al superar las 300.000 filas, Excel se congela, consume memoria y tarda minutos en abrir.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="text-red-500 font-bold text-base leading-none">✕</span>
+              <span><strong>Fórmulas BUSCARV frágiles:</strong> Un movimiento de columnas rompe la fórmula y arroja molestos errores <code class="text-red-600 font-mono bg-red-50 px-1 py-0.5 rounded">#N/A</code>.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="text-red-500 font-bold text-base leading-none">✕</span>
+              <span><strong>Cero automatización real:</strong> Cada mes debes rehacer manualmente los mismos cruces, copiar y pegar celdas.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Tarjeta Python + IA -->
+        <div class="p-6 rounded-2xl bg-white border-2 border-[#0b2341] shadow-md relative overflow-hidden">
+          <div class="flex items-center justify-between mb-4">
+            <span class="px-3 py-1 rounded-full bg-blue-50 text-[#0b2341] text-xs font-extrabold border border-blue-200">El Nuevo Estándar (Python + Gemini)</span>
+            <span class="text-2xl">🚀</span>
+          </div>
+          <h3 class="text-xl font-bold text-[#0b2341] mb-3">Tu Rol: Director Comercial</h3>
+          <ul class="space-y-3.5 text-sm text-slate-600">
+            <li class="flex items-start gap-2.5">
+              <span class="text-[#c5a059] font-bold text-base leading-none">✓</span>
+              <span><strong>Velocidad instantánea:</strong> Cruza 1.048.554 registros de ventas en 1.2 segundos sin colapsar tu computador.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="text-[#c5a059] font-bold text-base leading-none">✓</span>
+              <span><strong>La IA programa, tú decides:</strong> Le pides a Gemini en español lo que requieres y tú auditas el sentido del negocio.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="text-[#c5a059] font-bold text-base leading-none">✓</span>
+              <span><strong>Flujo 100% reproducible:</strong> Al mes siguiente, cambias la carpeta o el archivo y todo se recalcula con 1 solo clic.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: Quiebre Cómico - El Meme -->
+    <section class="slide slide-hidden flex-col items-center justify-center max-w-4xl text-center" data-slide="3">
+      <div class="mb-3">
+        <span class="text-[#c5a059] text-xs font-bold uppercase tracking-wider">Cambio de Paradigma</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-[#0b2341] mt-1">¿Empujar la carreta o pilotar el jet?</h2>
+      </div>
+
+      <div class="p-3 bg-white rounded-2xl border border-slate-200 shadow-xl max-w-sm mx-auto">
+        <img 
+          src="https://raw.githubusercontent.com/donlucaslucas/TesisProvefarma/main/meme.png" 
+          alt="Meme: De empujar la carreta a volar en un jet con IA + Python + VS Code" 
+          class="rounded-xl w-full h-auto object-contain max-h-[410px] mx-auto"
+          loading="lazy"
+        />
+      </div>
+      <p class="text-xs sm:text-sm text-slate-600 mt-3 font-medium max-w-lg">
+        La diferencia no radica en quién escribe más código a mano, sino en <strong>quién aprovecha mejor la inteligencia artificial</strong> para no desgastarse en tareas mecánicas.
+      </p>
+    </section>
+
+    <!-- SLIDE 4: Concepto 1 - Python -->
+    <section class="slide slide-hidden flex-col max-w-5xl w-full" data-slide="4">
+      <div class="mb-4">
+        <span class="text-[#c5a059] text-xs font-bold uppercase tracking-wider">Concepto 1 de 8</span>
+        <h2 class="text-3xl font-extrabold text-[#0b2341] mt-1">Python: El Estándar Mundial en Análisis de Negocios</h2>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-5">
+        <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
+          <div class="w-10 h-10 rounded-xl bg-amber-50 text-[#b08d46] border border-amber-200 flex items-center justify-center font-bold mb-3 font-mono">01</div>
+          <h3 class="text-lg font-bold text-[#0b2341] mb-2">Inglés Comercial Claro</h3>
+          <p class="text-sm text-slate-600">
+            A diferencia de lenguajes complejos, Python se lee casi como frases en lenguaje natural: <code class="text-[#005a9c] font-mono font-semibold">ventas.groupby('mes').sum()</code>.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
+          <div class="w-10 h-10 rounded-xl bg-blue-50 text-[#0b2341] border border-blue-200 flex items-center justify-center font-bold mb-3 font-mono">02</div>
+          <h3 class="text-lg font-bold text-[#0b2341] mb-2">Velocidad en RAM</h3>
+          <p class="text-sm text-slate-600">
+            No dibuja millones de celdas visuales en pantalla como Excel. Opera directo en la memoria del equipo, multiplicando la velocidad de cálculo.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center font-bold mb-3 font-mono">03</div>
+          <h3 class="text-lg font-bold text-[#0b2341] mb-2">Amigable con la IA</h3>
+          <p class="text-sm text-slate-600">
+            Es el lenguaje preferido por los modelos de IA generativa. Cuando le pides scripts analíticos a Gemini, <strong>la precisión es altísima</strong>.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-6 p-4 rounded-xl bg-blue-50 border border-blue-200 flex items-center gap-3.5 text-left">
+        <span class="text-2xl">💡</span>
+        <p class="text-sm text-[#0b2341]">
+          <strong>El nuevo perfil profesional:</strong> No necesitas convertirte en desarrollador de software ni memorizar comandos técnicos. Tu valor diferencial como egresado está en plantear las preguntas estratégicas correctas, auditar los números y liderar la toma de decisiones con apoyo de la inteligencia artificial.
+        </p>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: Concepto 2 & 3 - VS Code y la Terminal con Foto Real -->
+    <section class="slide slide-hidden flex-col max-w-5xl w-full" data-slide="5">
+      <div class="mb-3">
+        <span class="text-[#c5a059] text-xs font-bold uppercase tracking-wider">Conceptos 2 y 3 de 8</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-[#0b2341] mt-1">El Espacio de Trabajo: VS Code y la Terminal</h2>
+      </div>
+
+      <div class="grid md:grid-cols-12 gap-5 items-center">
+        <div class="md:col-span-5 space-y-3.5 text-left">
+          <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
+            <h4 class="font-bold text-[#0b2341] text-base mb-1">Visual Studio Code (El Taller)</h4>
+            <p class="text-xs text-slate-600">
+              Es tu carpeta de trabajo visual. No programa cosas misteriosas: organiza tus archivos CSV, scripts y resultados en una barra lateral limpia y ordenada.
+            </p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
+            <h4 class="font-bold text-[#0b2341] text-base mb-1">La Terminal (Línea de Comandos)</h4>
+            <p class="text-xs text-slate-600">
+              Una ventana de texto directo para una sola cosa: pedirle a Python que descargue sus herramientas (<code class="text-[#005a9c] font-mono font-semibold">pip install pandas openpyxl</code>).
+            </p>
+          </div>
+
+          <div class="p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-[#b08d46] font-semibold">
+            ⚡ En este taller ejecutaremos todo directo en celdas con el botón Play.
+          </div>
+        </div>
+
+        <!-- Captura Real de Pantalla VS Code desde GitHub -->
+        <div class="md:col-span-7">
+          <div class="rounded-xl overflow-hidden border border-slate-300 shadow-xl bg-slate-900">
+            <div class="bg-slate-800 px-3 py-1.5 flex items-center justify-between text-[11px] text-slate-300 border-b border-slate-700">
+              <span>Captura Real: Carpeta del Taller en VS Code</span>
+              <span class="text-[#c5a059] font-mono">Taller.ipynb</span>
+            </div>
+            <img 
+              src="https://raw.githubusercontent.com/donlucaslucas/TesisProvefarma/main/Vscode.png" 
+              alt="Entorno real de VS Code con Jupyter Notebook abierto y los 4 archivos CSV" 
+              class="w-full h-auto object-cover max-h-[340px]"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: Concepto 4 - Librerías -->
+    <section class="slide slide-hidden flex-col max-w-5xl w-full" data-slide="6">
+      <div class="mb-4">
+        <span class="text-[#c5a059] text-xs font-bold uppercase tracking-wider">Concepto 4 de 8</span>
+        <h2 class="text-3xl font-extrabold text-[#0b2341] mt-1">Librerías: Tus "Cajas de Herramientas" Especializadas</h2>
+        <p class="text-sm text-slate-600 mt-1">Python básico es como un smartphone de fábrica. Las librerías son las aplicaciones que instalas para darle superpoderes analíticos.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-5">
+        <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm hover:border-[#0b2341] transition">
+          <div class="w-12 h-12 rounded-xl bg-blue-50 text-[#0b2341] border border-blue-200 flex items-center justify-center text-2xl mb-3">🐼</div>
+          <h3 class="text-lg font-bold text-[#0b2341] mb-1">Pandas</h3>
+          <span class="text-[11px] uppercase tracking-wider font-extrabold text-[#005a9c]">El Motor de Datos</span>
+          <p class="text-xs text-slate-600 mt-3 leading-relaxed">
+            Reemplaza a BUSCARV y tablas dinámicas. Lee CSVs pesados, realiza uniones relacionales (merge), agrupa meses y filtra millones de registros en milisegundos.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm hover:border-[#c5a059] transition">
+          <div class="w-12 h-12 rounded-xl bg-amber-50 text-[#b08d46] border border-amber-200 flex items-center justify-center text-2xl mb-3">📊</div>
+          <h3 class="text-lg font-bold text-[#0b2341] mb-1">Plotly</h3>
+          <span class="text-[11px] uppercase tracking-wider font-extrabold text-[#c5a059]">Visualización Web</span>
+          <p class="text-xs text-slate-600 mt-3 leading-relaxed">
+            Crea gráficos interactivos con zoom, hover con datos comerciales y diseño responsivo, listos para integrarse en un archivo HTML de apertura local.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm hover:border-emerald-600 transition">
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center text-2xl mb-3">📗</div>
+          <h3 class="text-lg font-bold text-[#0b2341] mb-1">OpenPyXL</h3>
+          <span class="text-[11px] uppercase tracking-wider font-extrabold text-emerald-600">Automatización Excel</span>
+          <p class="text-xs text-slate-600 mt-3 leading-relaxed">
+            Diseña planillas ejecutivas desde código: múltiples pestañas, tarjetas de KPIs, formato moneda, encabezados institucionales y anchos de columna automáticos.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: Concepto 5 & 6 - Jupyter y DataFrame -->
+    <section class="slide slide-hidden flex-col max-w-5xl w-full" data-slide="7">
+      <div class="mb-4">
+        <span class="text-[#c5a059] text-xs font-bold uppercase tracking-wider">Conceptos 5 y 6 de 8</span>
+        <h2 class="text-3xl font-extrabold text-[#0b2341] mt-1">Jupyter Notebook y el DataFrame</h2>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Notebook -->
+        <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-xl font-bold text-[#0b2341]">Jupyter Notebook (.ipynb)</h3>
+            <span class="px-2.5 py-0.5 rounded-full bg-blue-50 text-[#005a9c] text-xs font-bold">Por Celdas</span>
+          </div>
+          <p class="text-xs text-slate-600 mb-4">
+            A diferencia de un script que se corre completo de una sola vez, un Notebook divide el trabajo en <strong>bloques independientes</strong>:
+          </p>
+          <div class="space-y-2 text-xs font-mono text-left">
+            <div class="p-3 rounded-lg bg-slate-900 text-slate-200 border border-slate-700">
+              <span class="text-slate-400"># Celda 1: Cargo en memoria</span><br>
+              <span class="text-sky-300">df_ventas = pd.read_csv("ventas.csv")</span>
+              <span class="block text-emerald-400 mt-1">▶ Clic en Play: Queda en RAM</span>
+            </div>
+            <div class="p-3 rounded-lg bg-slate-900 text-slate-200 border border-slate-700">
+              <span class="text-slate-400"># Celda 2: Analizo de inmediato</span><br>
+              <span class="text-sky-300">df_ventas.groupby('idvendedor').sum()</span>
+              <span class="block text-amber-300 mt-1">▶ Veo el resultado al segundo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- DataFrame -->
+        <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-xl font-bold text-[#0b2341]">El DataFrame (df)</h3>
+            <span class="px-2.5 py-0.5 rounded-full bg-amber-50 text-[#b08d46] text-xs font-bold">Planilla en RAM</span>
+          </div>
+          <p class="text-xs text-slate-600 mb-4">
+            Es la versión en memoria de tu hoja Excel: posee <strong>filas</strong> (registros transaccionales) y <strong>columnas</strong> (atributos tipificados):
+          </p>
+          <div class="overflow-x-auto">
+            <table class="w-full text-[11px] font-mono border border-slate-200 rounded text-left">
+              <thead class="bg-slate-100 text-[#0b2341] font-bold">
+                <tr>
+                  <th class="p-1.5 border-b border-slate-200">fecha</th>
+                  <th class="p-1.5 border-b border-slate-200">idcliente</th>
+                  <th class="p-1.5 border-b border-slate-200">sku</th>
+                  <th class="p-1.5 border-b border-slate-200">montoventa</th>
+                </tr>
+              </thead>
+              <tbody class="text-slate-700 divide-y divide-slate-100">
+                <tr><td class="p-1.5">02-01-2026</td><td class="p-1.5">5230101</td><td class="p-1.5">160065</td><td class="p-1.5 text-emerald-700 font-bold">$2.651</td></tr>
+                <tr><td class="p-1.5">02-01-2026</td><td class="p-1.5">8353001</td><td class="p-1.5">262831</td><td class="p-1.5 text-emerald-700 font-bold">$8.844</td></tr>
+                <tr><td class="p-1.5 text-slate-400">... 1.048.552 más</td><td class="p-1.5 text-slate-400">...</td><td class="p-1.5 text-slate-400">...</td><td class="p-1.5 text-slate-400">...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: Concepto 7 - Modelo de Datos con Lazos Animados -->
+    <section class="slide slide-hidden flex-col max-w-5xl w-full" data-slide="8">
+      <div class="mb-3">
+        <span class="text-[#c5a059] text-xs font-bold uppercase tracking-wider">Concepto 7 de 8</span>
+        <h2 class="text-3xl font-extrabold text-[#0b2341] mt-1">El Modelo de Datos: Esquema en Estrella</h2>
+        <p class="text-xs sm:text-sm text-slate-600 mt-1">Una tabla central de transacciones conectada mediante llaves relacionales a sus maestros descriptivos.</p>
+      </div>
+
+      <div class="relative bg-white rounded-2xl border border-slate-200 p-6 shadow-md my-2 overflow-hidden">
+        <svg class="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Línea Clientes -> Ventas -->
+          <line x1="20%" y1="28%" x2="50%" y2="50%" stroke="#005a9c" stroke-width="2.5" class="animated-wire" />
+          <!-- Línea Productos -> Ventas -->
+          <line x1="80%" y1="28%" x2="50%" y2="50%" stroke="#005a9c" stroke-width="2.5" class="animated-wire" />
+          <!-- Línea Vendedores -> Ventas -->
+          <line x1="50%" y1="84%" x2="50%" y2="65%" stroke="#c5a059" stroke-width="2.5" class="animated-wire" />
+        </svg>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10 items-center">
+          
+          <!-- Dimensión Clientes -->
+          <div class="p-4 rounded-xl bg-white border-2 border-blue-200 shadow-sm text-left">
+            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-50 text-[#005a9c] uppercase">Dimensión Clientes</span>
+            <h4 class="font-bold text-[#0b2341] text-base mt-1">taller_clientes.csv</h4>
+            <div class="text-[11px] text-slate-500 font-semibold mb-2">7.448 registros</div>
+            <div class="text-[11px] font-mono text-slate-700 bg-slate-50 p-2.5 rounded border border-slate-200">
+              🔑 <strong>idcliente</strong><br>
+              • region<br>
+              • idvendedor
+            </div>
+          </div>
+
+          <!-- Centro: Hechos Ventas -->
+          <div class="p-5 rounded-2xl bg-gradient-to-b from-[#0b2341] to-[#163a66] text-white text-center shadow-xl border-2 border-[#c5a059]">
+            <span class="px-2.5 py-0.5 rounded-full bg-[#c5a059] text-[#0b2341] text-[10px] font-extrabold uppercase tracking-wider">Tabla de Hechos (Fact)</span>
+            <h3 class="font-extrabold text-xl text-white mt-2">taller_ventas.csv</h3>
+            <div class="text-[#f5e461] font-bold text-sm">1.048.554 Transacciones</div>
+            <div class="text-xs text-slate-300">Enero a Mayo 2026</div>
+            <div class="text-[11px] font-mono text-slate-200 mt-3 bg-black/30 p-2.5 rounded text-left border border-white/10">
+              📅 fecha<br>
+              🔗 idcliente (Merge)<br>
+              🔗 sku (Merge)<br>
+              🔗 idvendedor (Merge)<br>
+              📦 unidades | 💰 montoventa
+            </div>
+          </div>
+
+          <!-- Dimensión Productos -->
+          <div class="p-4 rounded-xl bg-white border-2 border-blue-200 shadow-sm text-left">
+            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-50 text-[#005a9c] uppercase">Dimensión Catálogo</span>
+            <h4 class="font-bold text-[#0b2341] text-base mt-1">taller_productos.csv</h4>
+            <div class="text-[11px] text-slate-500 font-semibold mb-2">45.804 SKUs</div>
+            <div class="text-[11px] font-mono text-slate-700 bg-slate-50 p-2.5 rounded border border-slate-200">
+              🔑 <strong>sku</strong><br>
+              • descriptor<br>
+              • macrocategoria<br>
+              • marca
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Dimensión Vendedores abajo -->
+        <div class="max-w-md mx-auto mt-6 p-3 rounded-xl bg-white border-2 border-amber-200 text-center shadow-sm relative z-10">
+          <span class="text-[10px] uppercase font-bold text-[#b08d46] block">Dimensión Jerarquía Comercial</span>
+          <div class="font-bold text-[#0b2341] text-sm">taller_vendedores.csv (29 Vendedores / 4 Jefes de Terreno)</div>
+          <div class="text-[11px] font-mono text-slate-600 mt-1">
+            🔑 idvendedor ➔ nombre_vendedor_terreno ➔ nombre_jefe_terreno
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: Concepto 8 - Metodología Prompting + TSV -->
+    <section class="slide slide-hidden flex-col max-w-5xl w-full" data-slide="9">
+      <div class="mb-4">
+        <span class="text-[#c5a059] text-xs font-bold uppercase tracking-wider">Concepto 8 de 8</span>
+        <h2 class="text-3xl font-extrabold text-[#0b2341] mt-1">El Flujo Clave: Gemini + TSV + VS Code</h2>
+        <p class="text-sm text-slate-600 mt-1">La técnica profesional para que la IA nunca alucine nombres de columnas ni invente datos.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3.5 my-2">
+        <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm text-left">
+          <div class="text-xs font-extrabold text-[#c5a059] mb-1">Paso 1</div>
+          <h4 class="font-bold text-[#0b2341] text-sm mb-2">Prompt a Gemini</h4>
+          <p class="text-xs text-slate-600">
+            Le indicas las rutas locales de tus archivos y ordenas: <em>"Prohibido exportar nada, genera un TSV en pantalla con muestras y conteos"</em>.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm text-left">
+          <div class="text-xs font-extrabold text-[#005a9c] mb-1">Paso 2</div>
+          <h4 class="font-bold text-[#0b2341] text-sm mb-2">Copiar a VS Code</h4>
+          <p class="text-xs text-slate-600">
+            Copias el bloque de código entregado por Gemini, lo pegas en una celda de tu cuaderno Jupyter y presionas <strong>Play</strong>.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm text-left">
+          <div class="text-xs font-extrabold text-[#0b2341] mb-1">Paso 3</div>
+          <h4 class="font-bold text-[#0b2341] text-sm mb-2">Salida TSV Limpia</h4>
+          <p class="text-xs text-slate-600">
+            Python imprime en pantalla el resumen (muestras, columnas y tipos). Copias ese bloque de texto desde la consola.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-300 shadow-sm text-left">
+          <div class="text-xs font-extrabold text-emerald-800 mb-1">Paso 4</div>
+          <h4 class="font-bold text-emerald-950 text-sm mb-2">Retroalimentar</h4>
+          <p class="text-xs text-slate-700">
+            Pegas el TSV en el chat. Ahora Gemini conoce la realidad exacta de tus tablas y puede escribir cruces 100% certeros.
+          </p>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl bg-white border border-amber-200 text-xs text-slate-700 text-left mt-3 shadow-sm">
+        <strong class="text-[#0b2341]">¿Por qué TSV (Tab-Separated Values)?</strong>
+        No sube gigabytes a internet, respeta la confidencialidad de tu empresa, no requiere vincular cuentas externas y la IA lo lee como si fuera una tabla nativa de base de datos.
+      </div>
+    </section>
+
+    <!-- SLIDE 10: La Importancia de Documentar en .TXT -->
+    <section class="slide slide-hidden flex-col max-w-5xl w-full" data-slide="10">
+      <div class="mb-4">
+        <span class="text-[#c5a059] text-xs font-bold uppercase tracking-wider">Tu Mejor Aliado Técnico</span>
+        <h2 class="text-3xl font-extrabold text-[#0b2341] mt-1">La Bitácora en .TXT: La Memoria de tu Análisis</h2>
+        <p class="text-sm text-slate-600 mt-1">Documentar no es comentar cada línea de código; es crear el contexto acumulado que alimenta a la IA.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-5">
+        <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm text-left">
+          <div class="w-10 h-10 rounded-xl bg-blue-50 text-[#0b2341] border border-blue-200 flex items-center justify-center font-bold mb-3">📝</div>
+          <h3 class="text-base font-bold text-[#0b2341] mb-2">1. Registro de Hallazgos</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Guardas en un archivo de texto plano (<code class="text-xs font-mono font-bold text-slate-800">.txt</code>) datos críticos: rango de fechas (Ene-May 2026), monto total ($18.696M) y nombres exactos de columnas.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm text-left">
+          <div class="w-10 h-10 rounded-xl bg-amber-50 text-[#b08d46] border border-amber-200 flex items-center justify-center font-bold mb-3">🛡️</div>
+          <h3 class="text-base font-bold text-[#0b2341] mb-2">2. Errores Resueltos</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Si hubo descalces (como <code class="text-[11px] font-mono bg-slate-100 p-0.5 rounded">unidadesventa</code> vs <code class="text-[11px] font-mono bg-slate-100 p-0.5 rounded">unidades</code> o caracteres con <code class="text-[11px] font-mono bg-slate-100 p-0.5 rounded">%{y:.2s}</code>), quedan anotados en la bitácora para que la IA nunca tropiece dos veces.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm text-left">
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center font-bold mb-3">⚡</div>
+          <h3 class="text-base font-bold text-[#0b2341] mb-2">3. Contexto Instantáneo</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Al iniciar una nueva sesión o pedir un dashboard complejo, pegas tu <code class="text-xs font-mono font-bold text-slate-800">.txt</code> de resumen: la IA entiende todo el proyecto en 1 segundo y genera código impecable.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-5 p-4 rounded-xl bg-slate-900 text-white font-mono text-xs text-left shadow-md">
+        <span class="text-[#c5a059] font-bold">Ejemplo de Bitácora (.txt):</span><br>
+        <span class="text-slate-300">
+          • Modelo: Ventas (1.048.554 filas) unidas con Clientes, SKUs y 4 Jefes de Terreno.<br>
+          • Hallazgo: 1 cliente en ventas no existe en maestro clientes (cruce LEFT JOIN requerido).<br>
+          • Corrección aplicada: Formatear moneda en Python con fmt_monto() para evitar fallos de etiquetas en Plotly.
+        </span>
+      </div>
+    </section>
+
+    <!-- SLIDE 11: Los Entregables Finales -->
+    <section class="slide slide-hidden flex-col max-w-5xl w-full" data-slide="11">
+      <div class="mb-4">
+        <span class="text-[#c5a059] text-xs font-bold uppercase tracking-wider">Impacto en el Negocio</span>
+        <h2 class="text-3xl font-extrabold text-[#0b2341] mt-1">Los Dos Resultados Finales del Taller</h2>
+        <p class="text-sm text-slate-600 mt-1">Sin contratar servidores, sin pagar licencias adicionales y listos para presentar ante directores y gerencias.</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Entregable HTML -->
+        <div class="p-6 rounded-2xl bg-white border-2 border-[#0b2341] shadow-md text-left">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="text-3xl">🌐</span>
+            <div>
+              <h3 class="text-lg font-bold text-[#0b2341]">Dashboard Web HTML Interactivo</h3>
+              <span class="text-xs font-mono text-slate-500 font-bold">dashboard_interactivo_jefes.html</span>
+            </div>
+          </div>
+          <ul class="text-xs sm:text-sm text-slate-600 space-y-2 mt-4">
+            <li class="flex items-start gap-2"><span>✔</span> Pestaña global <strong>OVERALL</strong> con KPIs y evolución temporal de $18.696M.</li>
+            <li class="flex items-start gap-2"><span>✔</span> Pestañas dedicadas para los <strong>4 Jefes de Terreno</strong>.</li>
+            <li class="flex items-start gap-2"><span>✔</span> Sub-pestañas individuales para cada vendedor con su <strong>Top 15 de productos</strong>.</li>
+            <li class="flex items-start gap-2"><span>✔</span> Abre con 1 clic en Chrome o Edge, de forma 100% autónoma.</li>
+          </ul>
+        </div>
+
+        <!-- Entregable Excel -->
+        <div class="p-6 rounded-2xl bg-white border-2 border-emerald-600 shadow-md text-left">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="text-3xl">📊</span>
+            <div>
+              <h3 class="text-lg font-bold text-emerald-900">Libro Ejecutivo en Excel</h3>
+              <span class="text-xs font-mono text-slate-500 font-bold">dashboard_comercial_ejecutivo.xlsx</span>
+            </div>
+          </div>
+          <ul class="text-xs sm:text-sm text-slate-600 space-y-2 mt-4">
+            <li class="flex items-start gap-2"><span>✔</span> Hoja <strong>"KPIs Overall"</strong> con tarjetas de métricas comerciales.</li>
+            <li class="flex items-start gap-2"><span>✔</span> Hoja <strong>"Resumen por Jefe"</strong> con participación porcentual del negocio.</li>
+            <li class="flex items-start gap-2"><span>✔</span> Hoja <strong>"Base Unificada"</strong> cruzada y lista para auditoría.</li>
+            <li class="flex items-start gap-2"><span>✔</span> Generado íntegramente por Python usando <em>OpenPyXL</em>.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 12: Comparador Interactivo en Vivo -->
+    <section class="slide slide-hidden flex-col max-w-5xl w-full" data-slide="12">
+      <div class="mb-4">
+        <span class="text-[#c5a059] text-xs font-bold uppercase tracking-wider">Simulación en Vivo</span>
+        <h2 class="text-3xl font-extrabold text-[#0b2341] mt-1">Compara en Directo: ¿Excel Tradicional o Python + IA?</h2>
+      </div>
+
+      <!-- Selector interactivo de criterio -->
+      <div class="flex flex-wrap gap-2 mb-6" id="criteriaButtons">
+        <button onclick="setComparison(0)" class="crit-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-[#0b2341] text-white">1. Procesar 1.048.554 Filas</button>
+        <button onclick="setComparison(1)" class="crit-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-white border border-slate-300 text-slate-700 hover:bg-slate-100">2. Cruce entre 4 Tablas</button>
+        <button onclick="setComparison(2)" class="crit-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-white border border-slate-300 text-slate-700 hover:bg-slate-100">3. Dashboards y Reportes</button>
+        <button onclick="setComparison(3)" class="crit-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-white border border-slate-300 text-slate-700 hover:bg-slate-100">4. Repetir el Próximo Mes</button>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6 text-left" id="comparisonContent">
+        <div class="p-6 rounded-2xl bg-white border border-red-200 shadow-sm">
+          <div class="text-xs uppercase font-extrabold text-red-600 mb-1">Enfoque Excel Tradicional</div>
+          <h3 id="compExcelTitle" class="text-xl font-bold text-slate-900 mb-3">Colapso del sistema</h3>
+          <p id="compExcelDesc" class="text-sm text-slate-600 leading-relaxed">
+            Excel soporta 1.048.576 filas. Nuestra base de ventas tiene 1.048.554 registros. Abrir el CSV en Excel toma más de 3 minutos y consume toda la memoria disponible, impidiendo filtrar con fluidez.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-white border-2 border-[#0b2341] shadow-md">
+          <div class="text-xs uppercase font-extrabold text-[#c5a059] mb-1">Enfoque Python + Gemini</div>
+          <h3 id="compPyTitle" class="text-xl font-bold text-[#0b2341] mb-3">1.2 segundos en RAM</h3>
+          <p id="compPyDesc" class="text-sm text-slate-600 leading-relaxed">
+            Pandas carga el millón de transacciones en la memoria RAM en poco más de un segundo, permitiendo calcular sumas y filtros instantáneos sin despeinarse.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 13: Las 3 Reglas de Oro y Arranque -->
+    <section class="slide slide-hidden flex-col items-center justify-center max-w-4xl text-center" data-slide="13">
+      <div class="w-14 h-14 rounded-2xl bg-amber-50 text-[#b08d46] border border-amber-200 flex items-center justify-center text-3xl font-bold mb-4 shadow-sm">
+        🎯
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-[#0b2341] mb-3">Las 3 Reglas para Llevarte el Éxito Hoy</h2>
+      <p class="text-slate-600 max-w-xl text-base mb-8">
+        Adóptalas durante toda la sesión para trabajar como los analistas de datos de clase mundial:
+      </p>
+
+      <div class="grid sm:grid-cols-3 gap-4 text-left w-full max-w-3xl mb-8">
+        <div class="p-5 rounded-xl bg-white border border-slate-200 shadow-sm">
+          <div class="text-[#0b2341] font-bold text-base mb-2">1. No escribas código</div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Tu labor es describir la necesidad comercial en español. Deja que Gemini redacte las funciones de Python por ti.
+          </p>
+        </div>
+        <div class="p-5 rounded-xl bg-white border border-slate-200 shadow-sm">
+          <div class="text-[#c5a059] font-bold text-base mb-2">2. Pide TSV en pantalla</div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            No exportes archivos a ciegas. Obliga al script a imprimir un resumen compacto para retroalimentar el chat de la IA.
+          </p>
+        </div>
+        <div class="p-5 rounded-xl bg-white border border-slate-200 shadow-sm">
+          <div class="text-emerald-700 font-bold text-base mb-2">3. Guarda tu .TXT</div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Anota los errores corregidos y las reglas de negocio en tu bitácora de texto para que la IA mantenga memoria perfecta.
+          </p>
+        </div>
+      </div>
+
+      <div class="inline-flex items-center gap-3 px-8 py-3.5 rounded-xl bg-[#0b2341] hover:bg-[#163a66] text-white font-extrabold text-sm shadow-xl transition cursor-pointer" onclick="nextSlide()">
+        <span>¡Iniciemos la práctica en VS Code!</span>
+        <svg class="w-4 h-4 text-[#c5a059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="h-16 border-t border-slate-200 bg-white/95 backdrop-blur px-6 sm:px-10 flex items-center justify-between">
+    <div class="text-xs text-slate-500 hidden sm:block">
+      Usa las flechas <kbd class="px-2 py-0.5 rounded bg-slate-100 border border-slate-300 font-mono text-slate-700 font-bold">←</kbd> <kbd class="px-2 py-0.5 rounded bg-slate-100 border border-slate-300 font-mono text-slate-700 font-bold">→</kbd> del teclado para avanzar
+    </div>
+
+    <div class="flex items-center gap-2.5 mx-auto sm:mx-0">
+      <button onclick="prevSlide()" class="px-4 py-2 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-[#0b2341] font-semibold text-xs transition flex items-center gap-1.5 shadow-sm">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Anterior
+      </button>
+      <button onclick="nextSlide()" class="px-5 py-2 rounded-xl bg-[#0b2341] hover:bg-[#163a66] text-white font-bold text-xs transition flex items-center gap-1.5 shadow-md">
+        Siguiente
+        <svg class="w-3.5 h-3.5 text-[#c5a059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </footer>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 13;
+
+    const comparisons = [
+      {
+        excelTitle: "Colapso del sistema",
+        excelDesc: "Excel soporta 1.048.576 filas. Nuestra base de ventas tiene 1.048.554 registros. Abrir el CSV en Excel toma más de 3 minutos y consume toda la memoria disponible, impidiendo filtrar con fluidez.",
+        pyTitle: "1.2 segundos en RAM",
+        pyDesc: "Pandas levanta el 100% de la base transaccional en un segundo. Al no tener que renderizar celdas gráficas en pantalla, consume menos de 180 MB de memoria RAM."
+      },
+      {
+        excelTitle: "Múltiples BUSCARV pesados",
+        excelDesc: "Cruzar ventas con clientes, productos y vendedores requiere 3 fórmulas BUSCARV por cada fila (3.1 millones de cálculos). Si una columna cambia de orden, se rompen las fórmulas arrojando #N/A.",
+        pyTitle: "Merge relacional automático",
+        pyDesc: "Con un simple merge de Pandas, Python vincula llaves idcliente, sku e idvendedor con integridad referencial garantizada en un solo paso y sin errores de celda."
+      },
+      {
+        excelTitle: "Tablas dinámicas rígidas",
+        excelDesc: "Las tablas dinámicas y gráficos de Excel aumentan exponencialmente el peso del archivo (.xlsx gigante) y se vuelven lentas al compartir por correo o Teams.",
+        pyTitle: "Dashboard HTML interactivo autónomo",
+        pyDesc: "Genera un archivo HTML de menos de 4 MB que abre en Chrome o Edge, con sub-pestañas por Jefe de Terreno, gráficos interactivos Plotly y tablas buscables al instante."
+      },
+      {
+        excelTitle: "Hacer todo de nuevo",
+        excelDesc: "Llega el mes siguiente con datos nuevos y debes volver a copiar, pegar fórmulas, verificar los BUSCARV y rearmar los gráficos a mano durante horas.",
+        pyTitle: "Reproducibilidad con 1 Clic",
+        pyDesc: "El script ya conoce las reglas. Al recibir nuevos CSVs, ejecutas el Notebook completo y en menos de 15 segundos tienes tu reporte HTML y tu Excel ejecutivo listos."
+      }
+    ];
+
+    function showSlide(index) {
+      if (index < 1) index = 1;
+      if (index > totalSlides) index = totalSlides;
+
+      currentSlide = index;
+
+      document.querySelectorAll('.slide').forEach(slide => {
+        slide.classList.remove('slide-active');
+        slide.classList.add('slide-hidden');
+      });
+
+      const activeSlide = document.querySelector(`.slide[data-slide="${currentSlide}"]`);
+      if (activeSlide) {
+        activeSlide.classList.remove('slide-hidden');
+        activeSlide.classList.add('slide-active');
+      }
+
+      document.getElementById('currentSlideNum').innerText = currentSlide;
+      const progressPercent = (currentSlide / totalSlides) * 100;
+      document.getElementById('progressBar').style.width = progressPercent + '%';
+    }
+
+    function prevSlide() {
+      showSlide(currentSlide - 1);
+    }
+
+    function nextSlide() {
+      showSlide(currentSlide + 1);
+    }
+
+    function setComparison(index) {
+      const data = comparisons[index];
+      document.getElementById('compExcelTitle').innerText = data.excelTitle;
+      document.getElementById('compExcelDesc').innerText = data.excelDesc;
+      document.getElementById('compPyTitle').innerText = data.pyTitle;
+      document.getElementById('compPyDesc').innerText = data.pyDesc;
+
+      const buttons = document.querySelectorAll('.crit-btn');
+      buttons.forEach((btn, i) => {
+        if (i === index) {
+          btn.className = "crit-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-[#0b2341] text-white";
+        } else {
+          btn.className = "crit-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-white border border-slate-300 text-slate-700 hover:bg-slate-100";
+        }
+      });
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {});
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        prevSlide();
+      }
+    });
+
+    function downloadPresentation() {
+      const htmlDoc = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+      const blob = new Blob([htmlDoc], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "presentacion_taller.html";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    showSlide(1);
+  </script>
+</body>
+</html>
